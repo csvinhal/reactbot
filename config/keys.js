@@ -1,5 +1,5 @@
 const config = {
-  googleProjectId: "reactpageagent - dpjpqq",
+  googleProjectID: "reactpageagent-dpjpqq",
   dialogFlowSessionID: "react-bot-session",
   dialogFlowSessionLanguageCode: "en-US"
 };
