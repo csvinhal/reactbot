@@ -39,6 +39,7 @@ const textQuery = async (text, parameters = {}) => {
 };
 
 const eventQuery = async (event, parameters = {}) => {
+    console.log(config.googlePrivateKey);
   const request = {
     session: sessionPath,
     queryInput: {
