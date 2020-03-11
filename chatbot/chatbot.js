@@ -5,7 +5,7 @@ const strugjason = require("structjson");
 const projectID = config.googleProjectID;
 const credentials = {
   client_email: config.googleClientEmail,
-  private_key: config.googlePrivateKey.replace(new RegExp('\\\\n', '\g'), '\n')
+  private_key: config.googlePrivateKey.replace(new RegExp("\\\\n", "g"), "\n") // Should do it to work on Heroku
 };
 
 const sessionClient = new dialogflow.SessionsClient({ projectID, credentials });
@@ -39,8 +39,6 @@ const textQuery = async (text, parameters = {}) => {
 };
 
 const eventQuery = async (event, parameters = {}) => {
-    console.log(config.googleClientEmail);
-    console.log(config.googlePrivateKey);
   const request = {
     session: sessionPath,
     queryInput: {
