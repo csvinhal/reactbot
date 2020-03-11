@@ -5,7 +5,7 @@ const strugjason = require("structjson");
 const projectID = config.googleProjectID;
 const credentials = {
   client_email: config.googleClientEmail,
-  private_key: config.googlePrivateKey
+  private_key: config.googlePrivateKey.replace(new RegExp('\\\\n', '\g'), '\n')
 };
 
 const sessionClient = new dialogflow.SessionsClient({ projectID, credentials });
