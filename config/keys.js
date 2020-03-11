@@ -1,7 +1,9 @@
-const config = {
-  googleProjectID: "reactpageagent-dpjpqq",
-  dialogFlowSessionID: "react-bot-session",
-  dialogFlowSessionLanguageCode: "en-US"
-};
+let config;
+
+if (process.env.NODE_ENV === "production") {
+  config = require("./prod");
+} else {
+  config = require("./dev");
+}
 
 module.exports = config;
