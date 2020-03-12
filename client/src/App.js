@@ -9,7 +9,7 @@ import Shop from "./pages/Shop/Shop";
 
 function App() {
   return (
-    <div className="App">
+    <div className="container">
       <BrowserRouter>
         <header className="App-header">
           <Header />
