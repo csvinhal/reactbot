@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { Component } from "react";
 import "./Chatbot.css";
 
@@ -8,6 +9,32 @@ class Chatbot extends Component {
     this.state = {
       messages: []
     };
+  }
+
+  async dfTextQuery(text) {
+    let says = {
+      speaks: "me",
+      msg: {
+        text: {
+          text
+        }
+      }
+    };
+
+    this.setState({ menssages: [...this.state.messages, says] });
+    const res = await axios.post("/api/df_text_query", { text });
+
+    for (let msg of res.data.fulfillmentMessages) {
+      says = {
+        speaks: "bot",
+        msg
+      };
+      this.setState({ menssages: [...this.state.messages, says] });
+    }
+  }
+
+  async dfEventQuery(event) {
+    const res = await axios.post("/api/df_event_query", { event });
   }
 
   render() {
