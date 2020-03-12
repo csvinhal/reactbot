@@ -35,6 +35,14 @@ class Chatbot extends Component {
 
   async dfEventQuery(event) {
     const res = await axios.post("/api/df_event_query", { event });
+
+    for (let msg of res.data.fulfillmentMessages) {
+      let says = {
+        speaks: "me",
+        msg
+      };
+      this.setState({ menssages: [...this.state.messages, says] });
+    }
   }
 
   render() {
