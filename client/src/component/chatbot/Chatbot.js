@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { Component } from "react";
 import "./Chatbot.css";
+import Message from "./Message/Message";
 
 class Chatbot extends Component {
   constructor(props) {
@@ -9,6 +10,10 @@ class Chatbot extends Component {
     this.state = {
       messages: []
     };
+  }
+
+  componentDidMount() {
+    this.dfEventQuery("Welcome");
   }
 
   async dfTextQuery(text) {
@@ -21,7 +26,7 @@ class Chatbot extends Component {
       }
     };
 
-    this.setState({ menssages: [...this.state.messages, says] });
+    this.setState({ messages: [...this.state.messages, says] });
     const res = await axios.post("/api/df_text_query", { text });
 
     for (let msg of res.data.fulfillmentMessages) {
@@ -29,7 +34,7 @@ class Chatbot extends Component {
         speaks: "bot",
         msg
       };
-      this.setState({ menssages: [...this.state.messages, says] });
+      this.setState({ messages: [...this.state.messages, says] });
     }
   }
 
@@ -41,8 +46,25 @@ class Chatbot extends Component {
         speaks: "me",
         msg
       };
-      this.setState({ menssages: [...this.state.messages, says] });
+      this.setState({ messages: [...this.state.messages, says] });
     }
+  }
+
+  renderMessages(stateMessages) {
+    if (stateMessages) {
+      console.log("passou aqui", stateMessages);
+      return stateMessages.map((message, i) => {
+        return (
+          <Message
+            key={i}
+            speaks={message.speaks}
+            text={message.msg.text.text}
+          />
+        );
+      });
+    }
+
+    return null;
   }
 
   render() {
@@ -50,6 +72,7 @@ class Chatbot extends Component {
       <div className="chatbot-container">
         <div id="chatbot" className="container__content">
           <h2>Chatbot</h2>
+          {this.renderMessages(this.state.messages)}
           <input type="text" />
         </div>
       </div>
