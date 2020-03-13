@@ -1,7 +1,11 @@
 import axios from "axios";
 import React, { Component } from "react";
+import Cookies from "universal-cookie";
+import { v4 as uuid } from "uuid";
 import "./Chatbot.css";
 import Message from "./Message/Message";
+
+const cookies = new Cookies();
 
 class Chatbot extends Component {
   messagesEnd;
@@ -14,6 +18,10 @@ class Chatbot extends Component {
     };
 
     this._handleInputKeyPress = this._handleInputKeyPress.bind(this);
+
+    if (!cookies.get("userID")) {
+      cookies.set("userID", uuid(), { path: "/" });
+    }
   }
 
   componentDidMount() {
@@ -24,18 +32,21 @@ class Chatbot extends Component {
     this.messagesEnd.scrollIntoView({ behavior: "smooth" });
   }
 
-  async dfTextQuery(text) {
+  async dfTextQuery(queryText) {
     let says = {
       speaks: "me",
       msg: {
         text: {
-          text
+          text: queryText
         }
       }
     };
 
     this.setState({ messages: [...this.state.messages, says] });
-    const res = await axios.post("/api/df_text_query", { text });
+    const res = await axios.post("/api/df_text_query", {
+      text: queryText,
+      userID: cookies.get("userID")
+    });
 
     for (let msg of res.data.fulfillmentMessages) {
       says = {
