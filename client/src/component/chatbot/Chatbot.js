@@ -4,16 +4,24 @@ import "./Chatbot.css";
 import Message from "./Message/Message";
 
 class Chatbot extends Component {
+  messagesEnd;
+
   constructor(props) {
     super(props);
 
     this.state = {
       messages: []
     };
+
+    this._handleInputKeyPress = this._handleInputKeyPress.bind(this);
   }
 
   componentDidMount() {
     this.dfEventQuery("Welcome");
+  }
+
+  componentDidUpdate() {
+    this.messagesEnd.scrollIntoView({ behavior: "smooth" });
   }
 
   async dfTextQuery(text) {
@@ -43,7 +51,7 @@ class Chatbot extends Component {
 
     for (let msg of res.data.fulfillmentMessages) {
       let says = {
-        speaks: "me",
+        speaks: "bot",
         msg
       };
       this.setState({ messages: [...this.state.messages, says] });
@@ -67,13 +75,26 @@ class Chatbot extends Component {
     return null;
   }
 
+  _handleInputKeyPress(e) {
+    if (e.key === "Enter") {
+      this.dfTextQuery(e.target.value);
+      e.target.value = "";
+    }
+  }
+
   render() {
     return (
       <div className="chatbot-container">
         <div id="chatbot" className="container__content">
           <h2>Chatbot</h2>
           {this.renderMessages(this.state.messages)}
-          <input type="text" />
+          <div
+            ref={el => {
+              this.messagesEnd = el;
+            }}
+            className="content__scroll-div"
+          ></div>
+          <input type="text" onKeyPress={this._handleInputKeyPress} />
         </div>
       </div>
     );

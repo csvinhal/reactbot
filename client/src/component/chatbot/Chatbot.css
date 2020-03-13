@@ -9,3 +9,8 @@
   width: 100%;
   overflow: auto;
 }
+
+.content__scroll-div {
+  float: left;
+  clear: both;
+}
