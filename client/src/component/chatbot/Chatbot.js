@@ -3,7 +3,8 @@ import React, { Component } from "react";
 import Cookies from "universal-cookie";
 import { v4 as uuid } from "uuid";
 import "./Chatbot.css";
-import Message from "./Message/Message";
+import Message from "./message/Message";
+import Card from "./card/Card";
 
 const cookies = new Cookies();
 
@@ -69,18 +70,59 @@ class Chatbot extends Component {
     }
   }
 
+  renderCards(cards) {
+    return cards.map((card, i) => <Card key={i} payload={card.structValue} />);
+  }
+
+  renderOneMessage(message, i) {
+    if (message.msg && message.msg.text && message.msg.text.text) {
+      return (
+        <Message key={i} speaks={message.speaks} text={message.msg.text.text} />
+      );
+    } else if (
+      message.msg &&
+      message.msg.payload &&
+      message.msg.payload.fields &&
+      message.msg.payload.fields.cards
+    ) {
+      return (
+        <div key={i}>
+          <div className="card-panel grey lighten-5 z-depth-1">
+            <div className="card-panel__container">
+              <div className="col s2">
+                <a
+                  className="btn-floating btn-large waves-effect waves-light red"
+                  href="#"
+                >
+                  {message.speaks}
+                </a>
+              </div>
+              <div className="card-panel__cards">
+                <div
+                  className="cards__container"
+                  style={{
+                    width:
+                      message.msg.payload.fields.cards.listValue.values.length *
+                      270
+                  }}
+                >
+                  {this.renderCards(
+                    message.msg.payload.fields.cards.listValue.values
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  }
+
   renderMessages(stateMessages) {
     if (stateMessages) {
-      console.log("passou aqui", stateMessages);
-      return stateMessages.map((message, i) => {
-        return (
-          <Message
-            key={i}
-            speaks={message.speaks}
-            text={message.msg.text.text}
-          />
-        );
-      });
+      return stateMessages.map((message, i) =>
+        this.renderOneMessage(message, i)
+      );
     }
 
     return null;
@@ -96,8 +138,12 @@ class Chatbot extends Component {
   render() {
     return (
       <div className="chatbot-container">
+        <nav>
+          <div className="nav-wrapper">
+            <a className="brand-logo">ChatBot</a>
+          </div>
+        </nav>
         <div id="chatbot" className="container__content">
-          <h2>Chatbot</h2>
           {this.renderMessages(this.state.messages)}
           <div
             ref={el => {
@@ -105,7 +151,9 @@ class Chatbot extends Component {
             }}
             className="content__scroll-div"
           ></div>
-          <input type="text" onKeyPress={this._handleInputKeyPress} />
+        </div>
+        <div className="col s12">
+          <input className="container__input" type="text" placeholder="Type a message:" onKeyPress={this._handleInputKeyPress} />
         </div>
       </div>
     );

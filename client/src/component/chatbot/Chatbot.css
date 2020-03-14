@@ -1,11 +1,14 @@
 .chatbot-container {
-  height: 400px;
+  height: 500px;
   width: 400px;
-  float: right;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border: 1px solid lightgrey;
 }
 
 .container__content {
-  height: 100%;
+  height: 388px;
   width: 100%;
   overflow: auto;
 }
@@ -13,4 +16,23 @@
 .content__scroll-div {
   float: left;
   clear: both;
+}
+
+.card-panel__container {
+  overflow: hidden;
+}
+
+.card-panel__cards {
+  overflow: auto;
+}
+
+.cards__container {
+  height: 300px;
+}
+
+.container__input {
+  margin: 0;
+  padding-left: 1%;
+  padding-right: 1%;
+  width: 98%;
 }
