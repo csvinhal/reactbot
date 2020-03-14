@@ -2,9 +2,10 @@ import axios from "axios";
 import React, { Component } from "react";
 import Cookies from "universal-cookie";
 import { v4 as uuid } from "uuid";
+import Card from "./card/Card";
 import "./Chatbot.css";
 import Message from "./message/Message";
-import Card from "./card/Card";
+import QuickReplies from "./quickReplies/QuickReplies";
 
 const cookies = new Cookies();
 
@@ -19,6 +20,7 @@ class Chatbot extends Component {
     };
 
     this._handleInputKeyPress = this._handleInputKeyPress.bind(this);
+    this._handleQuickReplyPayload = this._handleQuickReplyPayload.bind(this);
 
     if (!cookies.get("userID")) {
       cookies.set("userID", uuid(), { path: "/" });
@@ -31,6 +33,13 @@ class Chatbot extends Component {
 
   componentDidUpdate() {
     this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+  }
+
+  _handleQuickReplyPayload(event, payload, text) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.dfTextQuery(text);
   }
 
   async dfTextQuery(queryText) {
@@ -115,6 +124,21 @@ class Chatbot extends Component {
           </div>
         </div>
       );
+    } else if (
+      message.msg &&
+      message.msg.payload &&
+      message.msg.payload.fields &&
+      message.msg.payload.fields.quick_replies
+    ) {
+      return (
+        <QuickReplies
+          text={message.msg.payload.fields.text || null}
+          key={i}
+          replyClick={this._handleQuickReplyPayload}
+          speaks={message.speaks}
+          payload={message.msg.payload.fields.quick_replies.listValue.values}
+        />
+      );
     }
   }
 
@@ -153,7 +177,12 @@ class Chatbot extends Component {
           ></div>
         </div>
         <div className="col s12">
-          <input className="container__input" type="text" placeholder="Type a message:" onKeyPress={this._handleInputKeyPress} />
+          <input
+            className="container__input"
+            type="text"
+            placeholder="Type a message:"
+            onKeyPress={this._handleInputKeyPress}
+          />
         </div>
       </div>
     );
