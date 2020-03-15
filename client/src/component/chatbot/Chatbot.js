@@ -16,11 +16,14 @@ class Chatbot extends Component {
     super(props);
 
     this.state = {
-      messages: []
+      messages: [],
+      showBot: true
     };
 
     this._handleInputKeyPress = this._handleInputKeyPress.bind(this);
     this._handleQuickReplyPayload = this._handleQuickReplyPayload.bind(this);
+    this.hide = this.hide.bind(this);
+    this.show = this.show.bind(this);
 
     if (!cookies.get("userID")) {
       cookies.set("userID", uuid(), { path: "/" });
@@ -33,13 +36,36 @@ class Chatbot extends Component {
 
   componentDidUpdate() {
     this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+
+    if (this.talkInput) {
+      this.talkInput.focus();
+    }
+  }
+
+  show(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState({ showBot: true });
+  }
+
+  hide(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState({ showBot: false });
   }
 
   _handleQuickReplyPayload(event, payload, text) {
     event.preventDefault();
     event.stopPropagation();
 
-    this.dfTextQuery(text);
+    switch (payload) {
+      case "training_masterclass":
+        this.dfEventQuery("MASTERCLASS");
+        break;
+      default:
+        this.dfTextQuery(text);
+        break;
+    }
   }
 
   async dfTextQuery(queryText) {
@@ -153,21 +179,53 @@ class Chatbot extends Component {
   }
 
   _handleInputKeyPress(e) {
-    if (e.key === "Enter") {
+    if (!this.state.showBot) {
+        e.preventDefault();
+        e.stopPropagation();
+    } else if (e.key === "Enter") {
       this.dfTextQuery(e.target.value);
       e.target.value = "";
     }
   }
 
   render() {
+    const containerClassName = ["chatbot-container"];
+    const contentClassName = ["container__content"];
+    const inputClassName = ["input__container col s12"];
+
+    if (!this.state.showBot) {
+      containerClassName.push("is-closed");
+      contentClassName.push("is-closed");
+      inputClassName.push("is-hidden");
+    }
+
     return (
-      <div className="chatbot-container">
+      <div id="chatbot" className={containerClassName.join(" ")}>
         <nav>
           <div className="nav-wrapper">
             <a className="brand-logo">ChatBot</a>
+            {this.state.showBot && (
+              <ul id="nav-mobile" className="right hide-on-med-and-down">
+                <li>
+                  <a href="/" onClick={this.hide}>
+                    Close
+                  </a>
+                </li>
+              </ul>
+            )}
+
+            {!this.state.showBot && (
+              <ul id="nav-mobile" className="right hide-on-med-and-down">
+                <li>
+                  <a href="/" onClick={this.show}>
+                    Show
+                  </a>
+                </li>
+              </ul>
+            )}
           </div>
         </nav>
-        <div id="chatbot" className="container__content">
+        <div id="chatbot" className={contentClassName.join(" ")}>
           {this.renderMessages(this.state.messages)}
           <div
             ref={el => {
@@ -176,11 +234,15 @@ class Chatbot extends Component {
             className="content__scroll-div"
           ></div>
         </div>
-        <div className="col s12">
+        <div className={inputClassName.join(" ")}>
           <input
-            className="container__input"
+            id="user_says"
+            className="element-input"
             type="text"
             placeholder="Type a message:"
+            ref={input => {
+              this.talkInput = input;
+            }}
             onKeyPress={this._handleInputKeyPress}
           />
         </div>

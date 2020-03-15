@@ -1,16 +1,28 @@
 .chatbot-container {
-  height: 500px;
   width: 400px;
   position: absolute;
   bottom: 0;
   right: 0;
   border: 1px solid lightgrey;
+  transition: min-height 400ms linear;
+  min-height: 500px;
+  max-height: 500px;
+}
+
+.chatbot-container.is-closed {
+  min-height: 40px;
+  max-height: 500px;
 }
 
 .container__content {
-  height: 388px;
+  min-height: 388px;
   width: 100%;
   overflow: auto;
+  transition: min-height 400ms linear;
+}
+
+.container__content.is-closed {
+  min-height: 0px;
 }
 
 .content__scroll-div {
@@ -30,7 +42,18 @@
   height: 300px;
 }
 
-.container__input {
+.input__container {
+  max-height: 55px;
+  overflow: hidden;
+  transition: max-height 400ms linear;
+}
+
+.input__container.is-hidden {
+  max-height: 0;
+  pointer-events: none;
+}
+
+.element-input {
   margin: 0;
   padding-left: 1%;
   padding-right: 1%;
