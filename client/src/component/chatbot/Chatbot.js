@@ -6,6 +6,7 @@ import Card from "./card/Card";
 import "./Chatbot.css";
 import Message from "./message/Message";
 import QuickReplies from "./quickReplies/QuickReplies";
+import { withRouter } from "react-router-dom";
 
 const cookies = new Cookies();
 
@@ -17,7 +18,8 @@ class Chatbot extends Component {
 
     this.state = {
       messages: [],
-      showBot: true
+      showBot: true,
+      shopWelcomenSent: false
     };
 
     this._handleInputKeyPress = this._handleInputKeyPress.bind(this);
@@ -32,6 +34,21 @@ class Chatbot extends Component {
 
   componentDidMount() {
     this.dfEventQuery("Welcome");
+
+    if (window.location.pathname === "/shop" && !this.state.shopWelcomenSent) {
+      this.dfEventQuery("WELCOME_SHOP");
+      this.setState({ shopWelcomenSent: true, showBot: true });
+    }
+
+    this.props.history.listen(() => {
+      if (
+        this.props.history.location.pathname === "/shop" &&
+        !this.state.shopWelcomenSent
+      ) {
+        this.dfEventQuery("WELCOME_SHOP");
+        this.setState({ shopWelcomenSent: true, showBot: true });
+      }
+    });
   }
 
   componentDidUpdate() {
@@ -59,6 +76,9 @@ class Chatbot extends Component {
     event.stopPropagation();
 
     switch (payload) {
+      case "recommend_yes":
+        this.dfEventQuery("SHOW_RECOMMENDATIONS");
+        break;
       case "training_masterclass":
         this.dfEventQuery("MASTERCLASS");
         break;
@@ -180,8 +200,8 @@ class Chatbot extends Component {
 
   _handleInputKeyPress(e) {
     if (!this.state.showBot) {
-        e.preventDefault();
-        e.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
     } else if (e.key === "Enter") {
       this.dfTextQuery(e.target.value);
       e.target.value = "";
@@ -251,4 +271,4 @@ class Chatbot extends Component {
   }
 }
 
-export default Chatbot;
+export default withRouter(Chatbot);

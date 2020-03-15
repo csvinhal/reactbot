@@ -11,18 +11,19 @@
 
 .chatbot-container.is-closed {
   min-height: 40px;
-  max-height: 500px;
+  overflow: hidden;
 }
 
 .container__content {
-  min-height: 388px;
+  height: 388px;
   width: 100%;
   overflow: auto;
-  transition: min-height 400ms linear;
+  transition: height 400ms linear;
 }
 
 .container__content.is-closed {
-  min-height: 0px;
+  height: 0px;
+  overflow: hidden;
 }
 
 .content__scroll-div {
