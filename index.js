@@ -1,8 +1,16 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const dialogFlow = require("./routes/dialogFlowRoutes");
-const app = express();
+const config = require("./config/keys");
+const mongoose = require("mongoose");
 
+mongoose.connect(config.mongoURI, {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useUnifiedTopology: true
+});
+
+const app = express();
 app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
