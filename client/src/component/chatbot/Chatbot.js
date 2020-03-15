@@ -1,12 +1,12 @@
 import axios from "axios";
 import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
 import Cookies from "universal-cookie";
 import { v4 as uuid } from "uuid";
 import Card from "./card/Card";
 import "./Chatbot.css";
 import Message from "./message/Message";
 import QuickReplies from "./quickReplies/QuickReplies";
-import { withRouter } from "react-router-dom";
 
 const cookies = new Cookies();
 
@@ -32,10 +32,17 @@ class Chatbot extends Component {
     }
   }
 
-  componentDidMount() {
+  resolveAfterXSeconds(x) {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(), x * 1000);
+    });
+  }
+
+  async componentDidMount() {
     this.dfEventQuery("Welcome");
 
     if (window.location.pathname === "/shop" && !this.state.shopWelcomenSent) {
+      await this.resolveAfterXSeconds(1);
       this.dfEventQuery("WELCOME_SHOP");
       this.setState({ shopWelcomenSent: true, showBot: true });
     }
