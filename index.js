@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const dialogFlow = require("./routes/dialogFlowRoutes");
+const fulfillment = require("./routes/fulfillmentRoutes");
 const config = require("./config/keys");
 const mongoose = require("mongoose");
 
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 });
 
 app.use(dialogFlow);
+app.use(fulfillment);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
