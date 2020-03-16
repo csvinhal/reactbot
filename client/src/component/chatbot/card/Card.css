@@ -1,0 +1,9 @@
+.card__container {
+  float: left;
+  padding-right: 30px;
+  width: 270px;
+}
+
+.card-image {
+    width: 240px;
+}

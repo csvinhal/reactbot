@@ -1,6 +1,7 @@
 const dialogflow = require("dialogflow");
 const config = require("../config/keys");
 const strugjason = require("structjson");
+const Registration = require("../models/Registration");
 
 const projectID = config.googleProjectID;
 const sessionID = config.dialogFlowSessionID;
@@ -11,10 +12,34 @@ const credentials = {
 
 const sessionClient = new dialogflow.SessionsClient({ projectID, credentials });
 
-const handleAction = async responses => {
-  return responses;
+const saveRegistration = fields => {
+  const registration = new Registration({
+    name: fields.name.stringValue,
+    address: fields.address.stringValue,
+    phone: fields.phone.stringValue,
+    email: fields.email.stringValue,
+    dateSent: Date.now()
+  });
+
+  try {
+    registration.save();
+  } catch (err) {
+    console.log(err);
+  }
 };
 
+const handleAction = async responses => {
+  let queryResult = responses[0].queryResult;
+
+  switch (queryResult.action) {
+    case "Recommendcourses-yes":
+      if (queryResult.allRequiredParamsPresent) {
+        saveRegistration(queryResult.parameters.fields);
+      }
+      break;
+  }
+  return responses;
+};
 const textQuery = async (text, userID, parameters = {}) => {
   const sessionPath = sessionClient.sessionPath(projectID, sessionID + userID);
   const request = {

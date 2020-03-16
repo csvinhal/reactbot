@@ -1,16 +1,61 @@
 .chatbot-container {
-  height: 400px;
   width: 400px;
-  float: right;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border: 1px solid lightgrey;
+  transition: min-height 400ms linear;
+  min-height: 500px;
+  max-height: 500px;
+}
+
+.chatbot-container.is-closed {
+  min-height: 40px;
+  overflow: hidden;
 }
 
 .container__content {
-  height: 100%;
+  height: 388px;
   width: 100%;
   overflow: auto;
+  transition: height 400ms linear;
+}
+
+.container__content.is-closed {
+  height: 0px;
+  overflow: hidden;
 }
 
 .content__scroll-div {
   float: left;
   clear: both;
+}
+
+.card-panel__container {
+  overflow: hidden;
+}
+
+.card-panel__cards {
+  overflow: auto;
+}
+
+.cards__container {
+  height: 300px;
+}
+
+.input__container {
+  max-height: 55px;
+  overflow: hidden;
+  transition: max-height 400ms linear;
+}
+
+.input__container.is-hidden {
+  max-height: 0;
+  pointer-events: none;
+}
+
+input[type=text]:not(.browser-default).element-input {
+  margin: 0 4px;
+  padding-left: 1%;
+  padding-right: 1%;
 }
