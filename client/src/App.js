@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter, Route } from "react-router-dom";
 import "./App.css";
 import Chatbot from "./component/chatbot/Chatbot";
-import Header from "./component/eader/Header";
+import Header from "./component/header/Header";
 import About from "./pages/About/About";
 import Landing from "./pages/Landing/Landing";
 import Shop from "./pages/Shop/Shop";
