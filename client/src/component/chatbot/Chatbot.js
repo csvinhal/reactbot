@@ -95,28 +95,45 @@ class Chatbot extends Component {
     }
   }
 
-  async dfTextQuery(queryText) {
+  async dfTextQuery(text) {
     let says = {
       speaks: "me",
       msg: {
         text: {
-          text: queryText
+          text
         }
       }
     };
 
     this.setState({ messages: [...this.state.messages, says] });
-    const res = await axios.post("/api/df_text_query", {
-      text: queryText,
-      userID: cookies.get("userID")
-    });
 
-    for (let msg of res.data.fulfillmentMessages) {
+    try {
+      const res = await axios.post("/api/df_text_query", {
+        text,
+        userID: cookies.get("userID")
+      });
+
+      for (let msg of res.data.fulfillmentMessages) {
+        says = {
+          speaks: "bot",
+          msg
+        };
+        this.setState({ messages: [...this.state.messages, says] });
+      }
+    } catch (e) {
       says = {
         speaks: "bot",
-        msg
+        msg: {
+          text: {
+            text: `I'm having troubles. I need to terminate. Will be back later`
+          }
+        }
       };
       this.setState({ messages: [...this.state.messages, says] });
+
+      setTimeout(() => {
+        this.setState({ showBot: false });
+      }, 2000);
     }
   }
 
