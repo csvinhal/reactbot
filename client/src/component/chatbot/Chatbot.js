@@ -5,7 +5,7 @@ import Cookies from "universal-cookie";
 import { v4 as uuid } from "uuid";
 import Card from "./card/Card";
 import "./Chatbot.css";
-import Message from "./essage/Message";
+import Message from "./message/Message";
 import QuickReplies from "./quickReplies/QuickReplies";
 
 const cookies = new Cookies();
