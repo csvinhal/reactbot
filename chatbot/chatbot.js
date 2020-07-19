@@ -18,7 +18,7 @@ const getToken = async () => {
     googleAuth.authenticate(
       {
         email: config.googleClientEmail,
-        key: config.googlePrivateKey,
+        key: config.googlePrivateKey.replace(new RegExp("\\\\n", "g"), "\n"), // Should do it to work on Heroku,
         scopes: ["https://www.googleapis.com/auth/cloud-platform"],
       },
       (err, token) => {
