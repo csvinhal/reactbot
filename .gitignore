@@ -47,3 +47,5 @@ Thumbs.db
 
 # config
 config/dev.js
+.env*
+.vscode/*

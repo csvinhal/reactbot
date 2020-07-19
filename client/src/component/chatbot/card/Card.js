@@ -1,30 +1,25 @@
 import React from "react";
 import "./Card.css";
 
-const Card = props => {
+const Card = (props) => {
   return (
     <div className="card__container">
       <div className="card">
         <div className="card-image">
-          <img
-            alt={props.payload.fields.header.stringValue}
-            src={props.payload.fields.image.stringValue}
-          />
-          <span className="card-title">
-            {props.payload.fields.header.stringValue}
-          </span>
+          <img alt={props.payload.header} src={props.payload.image} />
+          <span className="card-title">{props.payload.header}</span>
         </div>
         <div className="card-content">
-          {props.payload.fields.description.stringValue}
+          {props.payload.description}
           <p>
-            <a>{props.payload.fields.price.stringValue}</a>
+            <a href="/">{props.payload.price}</a>
           </p>
         </div>
         <div className="card-action">
           <a
             target="_blank"
             rel="noopener noreferrer"
-            href={props.payload.fields.link.stringValue}
+            href={props.payload.link}
           >
             GET NOW
           </a>

@@ -19,7 +19,10 @@ class Chatbot extends Component {
     this.state = {
       messages: [],
       showBot: true,
-      shopWelcomenSent: false
+      shopWelcomenSent: false,
+      shopWelcomeSent: false,
+      clientToken: false,
+      regenerateToken: 0,
     };
 
     this._handleInputKeyPress = this._handleInputKeyPress.bind(this);
@@ -33,7 +36,7 @@ class Chatbot extends Component {
   }
 
   resolveAfterXSeconds(x) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(() => resolve(), x * 1000);
     });
   }
@@ -100,57 +103,99 @@ class Chatbot extends Component {
       speaks: "me",
       msg: {
         text: {
-          text
-        }
-      }
+          text,
+        },
+      },
     };
 
     this.setState({ messages: [...this.state.messages, says] });
 
-    try {
-      const res = await axios.post("/api/df_text_query", {
-        text,
-        userID: cookies.get("userID")
-      });
-
-      for (let msg of res.data.fulfillmentMessages) {
-        says = {
-          speaks: "bot",
-          msg
-        };
-        this.setState({ messages: [...this.state.messages, says] });
-      }
-    } catch (e) {
-      says = {
-        speaks: "bot",
-        msg: {
-          text: {
-            text: `I'm having troubles. I need to terminate. Will be back later`
-          }
-        }
-      };
-      this.setState({ messages: [...this.state.messages, says] });
-
-      setTimeout(() => {
-        this.setState({ showBot: false });
-      }, 2000);
-    }
+    const request = {
+      queryInput: {
+        text: {
+          text,
+          languageCode: "en-US",
+        },
+      },
+    };
+    await this.dfClientCall(request);
   }
 
   async dfEventQuery(event) {
-    const res = await axios.post("/api/df_event_query", { event });
+    const request = {
+      queryInput: {
+        event: {
+          name: event,
+          languageCode: "en-US",
+        },
+      },
+    };
+    await this.dfClientCall(request);
+  }
 
-    for (let msg of res.data.fulfillmentMessages) {
-      let says = {
-        speaks: "bot",
-        msg
+  async dfClientCall(request) {
+    try {
+      if (!this.state.clientToken) {
+        const res = await axios.get("/api/get_client_token");
+        this.setState({ clientToken: res.data.token });
+      }
+
+      if (
+        !process.env.REACT_APP_GOOGLE_PROJECT_ID ||
+        !process.env.REACT_APP_DF_SESSION_ID
+      ) {
+        console.log(`Can't read from env variable`);
+        throw Error;
+      }
+
+      const axiosConfig = {
+        headers: {
+          "Content-Type": "application/json;charset=UTF-8",
+          Authorization: `Bearer ${this.state.clientToken}`,
+        },
       };
-      this.setState({ messages: [...this.state.messages, says] });
+      const googleProjetId = process.env.REACT_APP_GOOGLE_PROJECT_ID;
+      const session =
+        process.env.REACT_APP_DF_SESSION_ID + cookies.get("userID");
+
+      const res = await axios.post(
+        `https://dialogflow.googleapis.com/v2/projects/${googleProjetId}/agent/sessions/${session}:detectIntent`,
+        request,
+        axiosConfig
+      );
+
+      for (let msg of res.data.queryResult.fulfillmentMessages) {
+        const says = {
+          speaks: "bot",
+          msg,
+        };
+        this.setState({ messages: [...this.state.messages, says] });
+      }
+      this.setState({ regenerateToken: 0 });
+    } catch (e) {
+      if (e.response.status === 401 && this.state.regenerateToken < 1) {
+        this.setState({ clientToken: false, regenerateToken: 1 });
+        this.dfClientCall(request);
+      } else {
+        const says = {
+          speaks: "bot",
+          msg: {
+            text: {
+              text: `I'm having troubles. I need to terminate. Will be back later`,
+            },
+          },
+        };
+        this.setState({ messages: [...this.state.messages, says] });
+
+        setTimeout(() => {
+          this.setState({ showBot: false });
+        }, 2000);
+      }
     }
   }
 
   renderCards(cards) {
-    return cards.map((card, i) => <Card key={i} payload={card.structValue} />);
+    return cards.map((card, i) => <Card key={i} payload={card} />);
   }
 
   renderOneMessage(message, i) {
@@ -161,8 +206,7 @@ class Chatbot extends Component {
     } else if (
       message.msg &&
       message.msg.payload &&
-      message.msg.payload.fields &&
-      message.msg.payload.fields.cards
+      message.msg.payload.cards
     ) {
       return (
         <div key={i}>
@@ -180,14 +224,10 @@ class Chatbot extends Component {
                 <div
                   className="cards__container"
                   style={{
-                    width:
-                      message.msg.payload.fields.cards.listValue.values.length *
-                      270
+                    width: message.msg.payload.cards.length * 270,
                   }}
                 >
-                  {this.renderCards(
-                    message.msg.payload.fields.cards.listValue.values
-                  )}
+                  {this.renderCards(message.msg.payload.cards)}
                 </div>
               </div>
             </div>
@@ -197,16 +237,15 @@ class Chatbot extends Component {
     } else if (
       message.msg &&
       message.msg.payload &&
-      message.msg.payload.fields &&
-      message.msg.payload.fields.quick_replies
+      message.msg.payload.quick_replies
     ) {
       return (
         <QuickReplies
-          text={message.msg.payload.fields.text || null}
+          text={message.msg.payload.text || null}
           key={i}
           replyClick={this._handleQuickReplyPayload}
           speaks={message.speaks}
-          payload={message.msg.payload.fields.quick_replies.listValue.values}
+          payload={message.msg.payload.quick_replies}
         />
       );
     }
@@ -272,7 +311,7 @@ class Chatbot extends Component {
         <div id="chatbot" className={contentClassName.join(" ")}>
           {this.renderMessages(this.state.messages)}
           <div
-            ref={el => {
+            ref={(el) => {
               this.messagesEnd = el;
             }}
             className="content__scroll-div"
@@ -284,7 +323,7 @@ class Chatbot extends Component {
             className="element-input"
             type="text"
             placeholder="Type a message:"
-            ref={input => {
+            ref={(input) => {
               this.talkInput = input;
             }}
             onKeyPress={this._handleInputKeyPress}
