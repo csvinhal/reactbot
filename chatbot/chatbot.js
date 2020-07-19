@@ -15,7 +15,6 @@ const sessionClient = new dialogflow.SessionsClient({ projectID, credentials });
 
 const getToken = async () => {
   return new Promise((resolve) => {
-    console.log(config);
     googleAuth.authenticate(
       {
         email: config.googleClientEmail,
